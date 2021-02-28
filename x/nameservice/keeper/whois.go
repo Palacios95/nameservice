@@ -59,10 +59,10 @@ func (k Keeper) CreateWhois(ctx sdk.Context, msg types.MsgCreateWhois) {
 }
 
 // GetWhois returns the whois information
-func (k Keeper) GetWhois(ctx sdk.Context, key string) (types.Whois, error) {
+func (k Keeper) GetWhois(ctx sdk.Context, name string) (types.Whois, error) {
 	store := ctx.KVStore(k.storeKey)
 	var whois types.Whois
-	byteKey := []byte(types.WhoisPrefix + key)
+	byteKey := []byte(types.WhoisPrefix + name)
 	err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(byteKey), &whois)
 	if err != nil {
 		return whois, err
@@ -71,8 +71,8 @@ func (k Keeper) GetWhois(ctx sdk.Context, key string) (types.Whois, error) {
 }
 
 // SetWhois sets a whois
-func (k Keeper) SetWhois(ctx sdk.Context, whois types.Whois) {
-	whoisKey := whois.ID
+func (k Keeper) SetWhois(ctx sdk.Context, name string, whois types.Whois) {
+	whoisKey := name
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(whois)
 	key := []byte(types.WhoisPrefix + whoisKey)
@@ -80,9 +80,9 @@ func (k Keeper) SetWhois(ctx sdk.Context, whois types.Whois) {
 }
 
 // DeleteWhois deletes a whois
-func (k Keeper) DeleteWhois(ctx sdk.Context, key string) {
+func (k Keeper) DeleteWhois(ctx sdk.Context, name string) {
 	store := ctx.KVStore(k.storeKey)
-	store.Delete([]byte(types.WhoisPrefix + key))
+	store.Delete([]byte(types.WhoisPrefix + name))
 }
 
 //
@@ -117,16 +117,16 @@ func getWhois(ctx sdk.Context, path []string, k Keeper) (res []byte, sdkError er
 	return res, nil
 }
 
-// Get creator of the item
+"Get Owner of the item"
 func (k Keeper) GetWhoisOwner(ctx sdk.Context, key string) sdk.AccAddress {
 	whois, err := k.GetWhois(ctx, key)
 	if err != nil {
 		return nil
 	}
-	return whois.Creator
+	return whois.Owner
 }
 
-// Check if the key exists in the store
+"Check if the key exists in the store"
 func (k Keeper) WhoisExists(ctx sdk.Context, key string) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has([]byte(types.WhoisPrefix + key))
