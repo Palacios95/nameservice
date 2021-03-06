@@ -39,25 +39,6 @@ func (k Keeper) SetWhoisCount(ctx sdk.Context, count int64) {
 	store.Set(byteKey, bz)
 }
 
-// CreateWhois creates a whois
-func (k Keeper) CreateWhois(ctx sdk.Context, msg types.MsgCreateWhois) {
-	// Create the whois
-	count := k.GetWhoisCount(ctx)
-	var whois = types.Whois{
-		Owner: msg.Owner,
-		Value: msg.Value,
-		Price: msg.Price,
-	}
-
-	store := ctx.KVStore(k.storeKey)
-	key := []byte(types.WhoisPrefix + msg.Name)
-	value := k.cdc.MustMarshalBinaryLengthPrefixed(whois)
-	store.Set(key, value)
-
-	// Update whois count
-	k.SetWhoisCount(ctx, count+1)
-}
-
 // GetWhois returns the whois information
 func (k Keeper) GetWhois(ctx sdk.Context, name string) (types.Whois, error) {
 	store := ctx.KVStore(k.storeKey)
@@ -79,15 +60,43 @@ func (k Keeper) SetWhois(ctx sdk.Context, name string, whois types.Whois) {
 	store.Set(key, bz)
 }
 
+// SetName sets the value corresponding to the name.
 func (k Keeper) SetName(ctx sdk.Context, name string, value string) {
 	whois, _ := k.GetWhois(ctx, name)
 	whois.Value = value
 	k.SetWhois(ctx, name, whois)
 }
+
 // DeleteWhois deletes a whois
 func (k Keeper) DeleteWhois(ctx sdk.Context, name string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete([]byte(types.WhoisPrefix + name))
+}
+
+//GetCreator gets the owner of the item
+func (k Keeper) GetCreator(ctx sdk.Context, key string) sdk.AccAddress {
+	whois, err := k.GetWhois(ctx, key)
+	if err != nil {
+		return nil
+	}
+	return whois.Creator
+}
+
+//SetCreator sets the creator of a whois
+func (k Keeper) SetCreator(ctx sdk.Context, name string, creator sdk.AccAddress) {
+	whois, _ := k.GetWhois(ctx, name)
+	whoisKey := name
+	whois.Creator = creator
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshalBinaryLengthPrefixed(whois)
+	key := []byte(types.WhoisPrefix + whoisKey)
+	store.Set(key, bz)
+}
+
+// WhoisExists ...
+func (k Keeper) WhoisExists(ctx sdk.Context, key string) bool {
+	store := ctx.KVStore(k.storeKey)
+	return store.Has([]byte(types.WhoisPrefix + key))
 }
 
 //
@@ -120,22 +129,4 @@ func getWhois(ctx sdk.Context, path []string, k Keeper) (res []byte, sdkError er
 	}
 
 	return res, nil
-}
-
-<<<<<<< HEAD
-=======
-"Get Owner of the item"
->>>>>>> 6d3d68bbd4187b3a53c6df8d553bcd604beb74ed
-func (k Keeper) GetWhoisOwner(ctx sdk.Context, key string) sdk.AccAddress {
-	whois, err := k.GetWhois(ctx, key)
-	if err != nil {
-		return nil
-	}
-	return whois.Owner
-}
-
-"Check if the key exists in the store"
-func (k Keeper) WhoisExists(ctx sdk.Context, key string) bool {
-	store := ctx.KVStore(k.storeKey)
-	return store.Has([]byte(types.WhoisPrefix + key))
 }

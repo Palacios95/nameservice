@@ -16,6 +16,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case types.MsgSetName:
 			return handleMsgSetName(ctx, k, msg)
+		case types.MsgBuyName:
+			return handleMsgBuyName(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
