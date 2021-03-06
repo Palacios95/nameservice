@@ -70,7 +70,7 @@ func (k Keeper) GetWhois(ctx sdk.Context, name string) (types.Whois, error) {
 	return whois, nil
 }
 
-// SetWhois sets a whois
+// SetWhois sets a whois. Modified to use name as a key.
 func (k Keeper) SetWhois(ctx sdk.Context, name string, whois types.Whois) {
 	whoisKey := name
 	store := ctx.KVStore(k.storeKey)
@@ -79,6 +79,11 @@ func (k Keeper) SetWhois(ctx sdk.Context, name string, whois types.Whois) {
 	store.Set(key, bz)
 }
 
+func (k Keeper) SetName(ctx sdk.Context, name string, value string) {
+	whois, _ := k.GetWhois(ctx, name)
+	whois.Value = value
+	k.SetWhois(ctx, name, whois)
+}
 // DeleteWhois deletes a whois
 func (k Keeper) DeleteWhois(ctx sdk.Context, name string) {
 	store := ctx.KVStore(k.storeKey)
@@ -117,7 +122,6 @@ func getWhois(ctx sdk.Context, path []string, k Keeper) (res []byte, sdkError er
 	return res, nil
 }
 
-"Get Owner of the item"
 func (k Keeper) GetWhoisOwner(ctx sdk.Context, key string) sdk.AccAddress {
 	whois, err := k.GetWhois(ctx, key)
 	if err != nil {
