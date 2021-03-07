@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/palacios95/nameservice/x/nameservice/types"
 )
 
@@ -16,10 +16,9 @@ var _ = strconv.Itoa(42)
 
 type createWhoisRequest struct {
 	BaseReq rest.BaseReq `json:"base_req"`
-	Creator string `json:"creator"`
-	Value string `json:"value"`
-	Price string `json:"price"`
-	
+	Owner   string       `json:"owner"`
+	Value   string       `json:"value"`
+	Price   string       `json:"price"`
 }
 
 func createWhoisHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -33,23 +32,20 @@ func createWhoisHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !baseReq.ValidateBasic(w) {
 			return
 		}
-		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		owner, err := sdk.AccAddressFromBech32(req.Owner)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		
 		parsedValue := req.Value
-		
+
 		parsedPrice := req.Price
-		
 
 		msg := types.NewMsgCreateWhois(
-			creator,
+			owner,
 			parsedValue,
 			parsedPrice,
-			
 		)
 
 		err = msg.ValidateBasic()
@@ -64,11 +60,10 @@ func createWhoisHandler(cliCtx context.CLIContext) http.HandlerFunc {
 
 type setWhoisRequest struct {
 	BaseReq rest.BaseReq `json:"base_req"`
-	ID 		string `json:"id"`
-	Creator string `json:"creator"`
-	Value string `json:"value"`
-	Price string `json:"price"`
-	
+	ID      string       `json:"id"`
+	Owner   string       `json:"owner"`
+	Value   string       `json:"value"`
+	Price   string       `json:"price"`
 }
 
 func setWhoisHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -82,24 +77,21 @@ func setWhoisHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !baseReq.ValidateBasic(w) {
 			return
 		}
-		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		owner, err := sdk.AccAddressFromBech32(req.Owner)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		
 		parsedValue := req.Value
-		
+
 		parsedPrice := req.Price
-		
 
 		msg := types.NewMsgSetWhois(
-			creator,
+			owner,
 			req.ID,
 			parsedValue,
 			parsedPrice,
-			
 		)
 
 		err = msg.ValidateBasic()
@@ -114,8 +106,8 @@ func setWhoisHandler(cliCtx context.CLIContext) http.HandlerFunc {
 
 type deleteWhoisRequest struct {
 	BaseReq rest.BaseReq `json:"base_req"`
-	Creator string `json:"creator"`
-	ID 		string `json:"id"`
+	Owner   string       `json:"owner"`
+	ID      string       `json:"id"`
 }
 
 func deleteWhoisHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -129,12 +121,12 @@ func deleteWhoisHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !baseReq.ValidateBasic(w) {
 			return
 		}
-		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		owner, err := sdk.AccAddressFromBech32(req.Owner)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgDeleteWhois(req.ID, creator)
+		msg := types.NewMsgDeleteWhois(req.ID, owner)
 
 		err = msg.ValidateBasic()
 		if err != nil {

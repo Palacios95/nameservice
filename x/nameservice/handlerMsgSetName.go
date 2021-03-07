@@ -10,7 +10,9 @@ import (
 
 func handleMsgSetName(ctx sdk.Context, k keeper.Keeper, msg types.MsgSetName) (*sdk.Result, error) {
 
-	if !msg.Owner.Equals(k.GetWhoisOwner(ctx, msg.Name)) { // Checks if the the msg sender is the same as the current owner
+	owner, _ := k.GetOwner(ctx, msg.Name)
+
+	if !msg.Owner.Equals(owner) { // Checks if the the msg sender is the same as the current owner
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner") // If not, throw an error
 	}
 

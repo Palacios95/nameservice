@@ -11,7 +11,7 @@ type MsgBuyName struct {
 	Bid   sdk.Coins
 }
 
-func NewMsgBuyName(owner sdk.AccAddress, name string, buyer sdk.AccAddress, bid sdk.Coin) MsgBuyName {
+func NewMsgBuyName(owner sdk.AccAddress, name string, buyer sdk.AccAddress, bid sdk.Coins) MsgBuyName {
 	return MsgBuyName{
 		Name:  name,
 		Buyer: buyer,
@@ -40,7 +40,7 @@ func (msg MsgBuyName) ValidateBasic() error {
 	if msg.Buyer.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "Buyer cannot be empty")
 	}
-	if !msg.Bid.IsPositive() {
+	if msg.Bid.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Bid must be a valid number")
 	}
 	if len(msg.Name) == 0 {

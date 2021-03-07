@@ -9,7 +9,7 @@ var _ sdk.Msg = &MsgSetName{}
 
 type MsgSetName struct {
 	Name  string
-	Owner sdk.AccAddress `json:"creator" yaml:"creator"`
+	Owner sdk.AccAddress `json:"owner" yaml:"owner"`
 	Value string         `json:"value" yaml:"value"`
 }
 

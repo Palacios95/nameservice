@@ -10,6 +10,10 @@ import (
 	"github.com/palacios95/nameservice/x/nameservice/types"
 )
 
+//
+// Keeper CRUD operations
+//
+
 // GetWhoisCount get the total number of whois
 func (k Keeper) GetWhoisCount(ctx sdk.Context) int64 {
 	store := ctx.KVStore(k.storeKey)
@@ -60,6 +64,21 @@ func (k Keeper) SetWhois(ctx sdk.Context, name string, whois types.Whois) {
 	store.Set(key, bz)
 }
 
+// DeleteWhois deletes a whois
+func (k Keeper) DeleteWhois(ctx sdk.Context, name string) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete([]byte(types.WhoisPrefix + name))
+}
+
+//GetName gets the value of the name
+func (k Keeper) GetName(ctx sdk.Context, key string) (string, error) {
+	whois, err := k.GetWhois(ctx, key)
+	if err != nil {
+		return "", err
+	}
+	return whois.Value, nil
+}
+
 // SetName sets the value corresponding to the name.
 func (k Keeper) SetName(ctx sdk.Context, name string, value string) {
 	whois, _ := k.GetWhois(ctx, name)
@@ -67,26 +86,40 @@ func (k Keeper) SetName(ctx sdk.Context, name string, value string) {
 	k.SetWhois(ctx, name, whois)
 }
 
-// DeleteWhois deletes a whois
-func (k Keeper) DeleteWhois(ctx sdk.Context, name string) {
-	store := ctx.KVStore(k.storeKey)
-	store.Delete([]byte(types.WhoisPrefix + name))
-}
-
-//GetCreator gets the owner of the item
-func (k Keeper) GetCreator(ctx sdk.Context, key string) sdk.AccAddress {
+//GetOwner gets the owner of the item
+func (k Keeper) GetOwner(ctx sdk.Context, key string) (sdk.AccAddress, error) {
 	whois, err := k.GetWhois(ctx, key)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return whois.Creator
+	return whois.Owner, nil
 }
 
-//SetCreator sets the creator of a whois
-func (k Keeper) SetCreator(ctx sdk.Context, name string, creator sdk.AccAddress) {
+//SetOwner sets the Owner of a whois
+func (k Keeper) SetOwner(ctx sdk.Context, name string, owner sdk.AccAddress) {
 	whois, _ := k.GetWhois(ctx, name)
 	whoisKey := name
-	whois.Creator = creator
+	whois.Owner = owner
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshalBinaryLengthPrefixed(whois)
+	key := []byte(types.WhoisPrefix + whoisKey)
+	store.Set(key, bz)
+}
+
+//GetPrice gets the owner of the item
+func (k Keeper) GetPrice(ctx sdk.Context, key string) (sdk.Coins, error) {
+	whois, err := k.GetWhois(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+	return whois.Price, nil
+}
+
+//SetPrice sets the Price of a whois
+func (k Keeper) SetPrice(ctx sdk.Context, name string, price sdk.Coins) {
+	whois, _ := k.GetWhois(ctx, name)
+	whoisKey := name
+	whois.Price = price
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(whois)
 	key := []byte(types.WhoisPrefix + whoisKey)
