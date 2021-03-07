@@ -9,7 +9,7 @@ import (
 )
 
 // Handle a message to delete name
-func handleMsgDeleteWhois(ctx sdk.Context, k keeper.Keeper, msg types.MsgDeleteName) (*sdk.Result, error) {
+func handleMsgDeleteName(ctx sdk.Context, k keeper.Keeper, msg types.MsgDeleteName) (*sdk.Result, error) {
 	if !k.WhoisExists(ctx, msg.ID) {
 		// replace with ErrKeyNotFound for 0.39+
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, msg.ID)
